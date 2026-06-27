@@ -1,0 +1,28 @@
+[
+  {
+    "EventID": 1,
+    "Image": "C:\\Windows\\System32\\cmd.exe",
+    "CommandLine": "cmd.exe /c whoami",
+    "Computer": "WORKSTATION01",
+    "User": "DOMAIN\\analyst",
+    "UtcTime": "2026-01-01T12:00:00.000Z"
+  },
+  {
+    "EventID": 3,
+    "Image": "C:\\Windows\\System32\\rundll32.exe",
+    "CommandLine": "rundll32.exe shell32.dll,Control_RunDLL",
+    "Computer": "WORKSTATION01",
+    "User": "DOMAIN\\analyst",
+    "UtcTime": "2026-01-01T12:01:30.000Z"
+  },
+  {
+    "EventID": 4624,
+    "TaskDisplayName": "Logon",
+    "Level": 4,
+    "Channel": "Security",
+    "Computer": "WORKSTATION01",
+    "SubjectUserName": "analyst",
+    "TimeCreated": "2026-01-01T12:02:00.000Z",
+    "Message": "An account was successfully logged on (Logon Type 3 - Network)."
+  }
+]

@@ -1,0 +1,43 @@
+# ---------------------------------------------------------------------------
+# Security Copilot - runtime dependencies (pinned for reproducible deploys)
+# Python 3.11+ required. Install with: pip install -r requirements.txt
+# ---------------------------------------------------------------------------
+
+# Backend Core
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+gunicorn==23.0.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+email-validator==2.2.0
+python-dotenv==1.0.1
+
+# RAG & ML
+qdrant-client==1.12.1
+sentence-transformers==3.3.1
+openai==1.59.6
+numpy==1.26.4
+
+# Database (async + sync drivers both required)
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+alembic==1.14.0
+
+# Caching
+redis==5.2.1
+
+# Security & Auth
+PyJWT==2.10.1
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+python-multipart==0.0.20
+slowapi==0.1.9
+
+# Observability
+prometheus-fastapi-instrumentator==7.0.0
+python-json-logger==3.2.1
+
+# Utilities
+httpx==0.28.1
+aiofiles==24.1.0

@@ -1,0 +1,45 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HF_HOME=/home/appuser/.cache/huggingface
+
+WORKDIR /app
+
+# Install system dependencies (build-essential needed to build some wheels).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies first for better layer caching.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code.
+COPY app/ ./app/
+COPY scripts/ ./scripts/
+
+# Create non-root user and give it ownership (incl. the HF cache dir).
+RUN useradd --create-home --shell /bin/bash appuser \
+    && mkdir -p /home/appuser/.cache \
+    && chown -R appuser:appuser /app /home/appuser
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -fsS http://localhost:8000/api/v1/health || exit 1
+
+# Gunicorn with Uvicorn workers for production concurrency.
+# Override worker count with the WEB_CONCURRENCY env var.
+CMD ["gunicorn", "app.main:app", \
+     "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--workers", "2", \
+     "--bind", "0.0.0.0:8000", \
+     "--timeout", "120", \
+     "--graceful-timeout", "30", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-"]

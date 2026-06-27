@@ -1,0 +1,119 @@
+# Security Copilot - full stack. Configure secrets in a .env file next to this
+# compose file (see ../.env.example). Never commit real secrets.
+#
+#   cd docker && cp ../.env.example .env && docker compose up -d --build
+
+services:
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:v1.12.1
+    container_name: seccopilot-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - seccopilot-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: seccopilot-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-seccopilot}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      - POSTGRES_DB=${POSTGRES_DB:-seccopilot}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-seccopilot} -d ${POSTGRES_DB:-seccopilot}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - seccopilot-network
+
+  # Redis (caching + rate-limit backend)
+  redis:
+    image: redis:7-alpine
+    container_name: seccopilot-redis
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - seccopilot-network
+
+  # Security Copilot Backend
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: seccopilot-backend
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../data:/app/data
+      - hf_cache:/home/appuser/.cache
+    environment:
+      # Service discovery overrides (take precedence over .env for in-network hosts)
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - seccopilot-network
+
+  # Frontend (nginx serving the built SPA + proxying /api to the backend)
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: seccopilot-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - seccopilot-network
+
+volumes:
+  qdrant_data:
+  postgres_data:
+  redis_data:
+  hf_cache:
+
+networks:
+  seccopilot-network:
+    driver: bridge

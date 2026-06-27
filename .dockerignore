@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+
+# Node / frontend build artifacts (rebuilt in the image)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# VCS / IDE / OS
+.git/
+.gitignore
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Docs and local data
+docs/
+data/raw/
+data/processed/
+logs/
+*.log
+
+# Notebooks
+.ipynb_checkpoints/

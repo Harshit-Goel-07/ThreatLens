@@ -1,0 +1,39 @@
+{
+  "id": "PB-PHISHING-001",
+  "title": "Phishing Email Response",
+  "description": "Standard operating procedure for triaging and responding to reported phishing emails.",
+  "incident_type": "phishing",
+  "severity": "MEDIUM",
+  "phase": "analysis",
+  "author": "SOC Team",
+  "version": "1.0",
+  "tags": ["phishing", "email", "social-engineering"],
+  "procedures": [
+    {
+      "step": 1,
+      "title": "Initial Triage",
+      "description": "Review the reported email and assess legitimacy.",
+      "actions": "1. Check sender address and SPF/DKIM/DMARC results\n2. Analyze email headers\n3. Inspect links and attachments in a sandbox"
+    },
+    {
+      "step": 2,
+      "title": "Threat Analysis",
+      "description": "Determine whether the email is malicious.",
+      "actions": "1. Detonate attachments in a sandbox\n2. Check URLs and domains against threat intel\n3. Search the mail gateway for similar messages"
+    },
+    {
+      "step": 3,
+      "title": "Containment",
+      "description": "Prevent further spread if the email is confirmed malicious.",
+      "actions": "1. Block sender domain and URLs\n2. Purge the email from all mailboxes\n3. Update mail filters and EDR blocklists"
+    },
+    {
+      "step": 4,
+      "title": "User Communication",
+      "description": "Notify affected users and close the loop.",
+      "actions": "1. Send a security advisory\n2. Provide reporting guidance\n3. Track click/credential-entry victims for follow-up"
+    }
+  ],
+  "checklists": ["Email headers analyzed", "Attachments detonated", "URLs blocked", "Users notified"],
+  "escalation_criteria": ["Credentials compromised", "Malware executed", "Data exfiltration detected"]
+}
