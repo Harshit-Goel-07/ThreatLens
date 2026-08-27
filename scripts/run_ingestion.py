@@ -116,6 +116,12 @@ async def main():
     logger.info("Security Copilot - Data Ingestion Pipeline")
     logger.info("=" * 60 + "\n")
     
+    from app.database.postgres import init_postgres
+    from app.retrieval.vector_store import init_qdrant
+
+    await init_postgres()
+    await init_qdrant()
+
     results = {}
     
     # Run ingestion tasks

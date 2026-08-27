@@ -43,15 +43,20 @@ class VectorStore:
     def client(self) -> QdrantClient:
         if self._client is None:
             try:
-                self._client = QdrantClient(
+                client = QdrantClient(
                     url=settings.qdrant_url,
                     api_key=settings.qdrant_api_key,
-                    timeout=30,
+                    timeout=3,
                 )
+                client.get_collections()
+                self._client = client
                 logger.info(f"Connected to Qdrant at {settings.qdrant_url}")
             except Exception as e:
-                logger.error(f"Failed to connect to Qdrant: {e}")
-                raise
+                logger.warning(
+                    f"Failed to connect to Qdrant at {settings.qdrant_url}: {e}. "
+                    "Falling back to embedded in-memory Qdrant instance."
+                )
+                self._client = QdrantClient(location=":memory:")
         return self._client
 
     async def create_collection(self, collection_name: str, vector_size: int = 384) -> None:

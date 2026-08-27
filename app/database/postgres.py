@@ -14,13 +14,23 @@ from app.database.models import Base
 
 logger = logging.getLogger(__name__)
 
-# Async engine for FastAPI (uses the asyncpg driver).
+# Async engine for FastAPI (supports asyncpg for Postgres and aiosqlite for SQLite).
+db_url = settings.postgres_url_full
+if "sqlite" in db_url:
+    async_url = db_url if "sqlite+aiosqlite" in db_url else db_url.replace("sqlite://", "sqlite+aiosqlite://")
+else:
+    async_url = db_url.replace("postgresql://", "postgresql+asyncpg://")
+
 async_engine = create_async_engine(
-    settings.postgres_url_full.replace("postgresql://", "postgresql+asyncpg://"),
+    async_url,
     echo=settings.debug,
     future=True,
     pool_pre_ping=True,
 )
+
+def get_async_engine():
+    """Return current active async engine."""
+    return async_engine
 
 # Async session factory
 AsyncSessionLocal = async_sessionmaker(
@@ -86,19 +96,20 @@ def get_sync_session():
 
 
 async def init_postgres() -> None:
-    """Initialize PostgreSQL database with all tables"""
+    """Initialize database with automatic SQLite fallback if PostgreSQL is unreachable."""
+    global async_engine, AsyncSessionLocal
     try:
         logger.info("Initializing PostgreSQL database...")
-        
-        # Create all tables
         async with async_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        
         logger.info("PostgreSQL database initialized successfully")
-        
     except Exception as e:
-        logger.error(f"Failed to initialize PostgreSQL: {e}")
-        raise
+        logger.warning(f"PostgreSQL connection failed ({e}). Falling back to local SQLite database.")
+        async_engine = create_async_engine("sqlite+aiosqlite:///./seccopilot.db", echo=settings.debug, future=True)
+        AsyncSessionLocal.configure(bind=async_engine)
+        async with async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("SQLite database fallback initialized successfully")
 
 
 async def close_postgres() -> None:

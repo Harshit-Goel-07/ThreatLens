@@ -21,13 +21,13 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual Environment
+# Virtual Environments
 venv/
 ENV/
 env/
-.venv
+.venv/
 
-# IDE
+# IDE & Editor Settings
 .vscode/
 .idea/
 *.swp
@@ -35,58 +35,66 @@ env/
 *~
 .DS_Store
 
-# Environment Variables
+# Environment Variables & Secrets (CRITICAL)
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+secrets/
+*.key
+*.pem
+*.crt
+*.pfx
 
-# Logs
+# Databases & Local Storage
+*.db
+*.sqlite
+*.sqlite3
+seccopilot.db
+test_runner.db
+test_seccopilot.db
+
+# Logs & Monitoring
 logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Data
+# Data & Models
 data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
-
-# Docker
-docker-compose.override.yml
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.hypothesis/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Models (if storing locally)
 models/
 *.pkl
 *.joblib
 *.h5
 *.pt
 *.pth
+*.onnx
+.cache/
+hf_cache/
 
-# Temporary files
+# Docker
+docker-compose.override.yml
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Temporary & Artifact Files
 *.tmp
 *.temp
-.cache/
-
-# OS
-Thumbs.db
-.DS_Store
+scratch/
+brain/
 
 # Frontend
 frontend/node_modules/
@@ -96,12 +104,10 @@ frontend/.next/
 frontend/.nuxt/
 frontend/.cache/
 
-# Secrets
-secrets/
-*.key
-*.pem
-*.crt
+# OS Specific
+Thumbs.db
+Desktop.ini
 
-# Backup files
+# Backup Files
 *.bak
 *.backup

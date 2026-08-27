@@ -9,11 +9,14 @@ workers); otherwise it falls back to in-memory limiting.
 
 from __future__ import annotations
 
+import logging
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from starlette.requests import Request
 
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def _rate_limit_key(request: Request) -> str:
@@ -24,11 +27,18 @@ def _rate_limit_key(request: Request) -> str:
 
 
 def _storage_uri() -> str:
-    # slowapi/limits supports redis:// natively; memory:// is the safe fallback.
-    if settings.redis_url.startswith("redis://") or settings.redis_url.startswith(
-        "rediss://"
+    if settings.redis_url and (
+        settings.redis_url.startswith("redis://")
+        or settings.redis_url.startswith("rediss://")
     ):
-        return settings.redis_url
+        try:
+            import redis
+
+            client = redis.from_url(settings.redis_url, socket_timeout=0.5)
+            client.ping()
+            return settings.redis_url
+        except Exception as e:
+            logger.info("Redis storage unreachable for rate limiter (%s), using memory://", e)
     return "memory://"
 
 

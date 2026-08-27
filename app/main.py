@@ -59,7 +59,13 @@ app = FastAPI(
 
 # --- Rate limiting -----------------------------------------------------------
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+async def _safe_rate_limit_handler(request, exc):
+    detail = getattr(exc, "detail", str(exc))
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status_code=429, content={"detail": f"Rate limit exceeded: {detail}"})
+
+app.add_exception_handler(RateLimitExceeded, _safe_rate_limit_handler)
 app.add_middleware(SlowAPIMiddleware)
 
 # --- Security & transport middleware ----------------------------------------

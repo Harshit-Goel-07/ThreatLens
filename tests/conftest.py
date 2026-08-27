@@ -2,15 +2,16 @@
 
 import os
 import pytest
-from typing import AsyncGenerator, Generator
 
 # Set test environment variables before importing app modules
+os.environ["ENVIRONMENT"] = "development"
+os.environ["DEBUG"] = "false"
 os.environ["JWT_SECRET_KEY"] = "test" * 8  # 32 chars
-os.environ["POSTGRES_URL"] = "postgresql://test:test@localhost:5432/test_db"
+os.environ["POSTGRES_URL"] = "sqlite+aiosqlite:///./test_runner.db"
 os.environ["REDIS_URL"] = "redis://localhost:6379/1"
-os.environ["QDRANT_URL"] = "http://localhost:6333"
-os.environ["ENVIRONMENT"] = "testing"
-os.environ["DEBUG"] = "true"
+os.environ["QDRANT_HOST"] = "localhost"
+os.environ["QDRANT_PORT"] = "6333"
+os.environ["API_KEYS"] = "test-api-key-12345"
 
 
 @pytest.fixture(scope="session")
@@ -22,16 +23,17 @@ def event_loop():
     loop.close()
 
 
-@pytest.fixture
-async def test_db():
-    """Fixture for test database session."""
-    from app.database.postgres import async_session_maker, init_db
-    
-    # Initialize test database
-    await init_db()
-    
-    async with async_session_maker() as session:
-        yield session
-        
-        # Cleanup
-        await session.rollback()
+@pytest.fixture(autouse=True)
+async def initialize_test_db():
+    """Ensure clean database state per test."""
+    from app.database.models import Base
+    from app.database.postgres import get_async_engine, init_postgres
+
+    await init_postgres()
+    engine = get_async_engine()
+
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield

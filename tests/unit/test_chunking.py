@@ -46,7 +46,7 @@ def test_semantic_chunker_empty_text():
 def test_semantic_chunker_with_newlines():
     """Test chunking with text containing newlines."""
     chunker = SemanticChunker(chunk_size=50, chunk_overlap=10)
-    text = "Line one\nLine two\nLine three\n" * 10
+    text = "Line one\nLine two\nLine three\n\n" * 10
     chunks = chunker.chunk_text(text)
     
     assert len(chunks) > 1

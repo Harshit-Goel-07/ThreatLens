@@ -82,18 +82,20 @@ class RAGPipeline:
         )
 
         if not search_results:
+            fallback_prompt = (
+                f"You are Security Copilot, an expert AI Assistant for SOC Analysts.\n"
+                f"Answer the following security question thoroughly using your expert "
+                f"cybersecurity domain knowledge, MITRE ATT&CK concepts, and incident response best practices:\n\n"
+                f"Question: {sanitized_query}"
+            )
+            llm_messages = [LLMMessage(role="user", content=fallback_prompt)]
             return {
-                'status': 'empty',
-                'response': {
-                    'success': True,
-                    'answer': "I couldn't find relevant information to answer your query. Please try rephrasing or provide more details.",
-                    'sources': [],
-                    'confidence_score': 0.0,
-                    'metadata': {
-                        'query_type': query_type,
-                        'response_time_ms': int((time.time() - start_time) * 1000),
-                    },
-                },
+                'status': 'ready',
+                'sanitized_query': sanitized_query,
+                'query_type': query_type,
+                'llm_messages': llm_messages,
+                'context': {'sources': [], 'context_text': '', 'total_length': 0},
+                'reranked': [],
             }
 
         # Step 4: Reranking

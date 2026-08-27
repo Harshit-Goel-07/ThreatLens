@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     log_json: bool = Field(default=True, alias="LOG_JSON")
     api_host: str = Field(default="0.0.0.0", alias="API_HOST")
-    api_port: int = Field(default=8000, alias="API_PORT")
+    api_port: int = Field(default=8008, alias="API_PORT")
 
     # --- LLM provider selection --------------------------------------------
     llm_provider: Literal["openai", "ollama"] = Field(
