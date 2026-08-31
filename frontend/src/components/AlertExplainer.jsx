@@ -89,7 +89,7 @@ export default function AlertExplainer() {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-white">Triage & Analysis Report</h3>
-                  <p className="text-[11px] text-slate-400">Security Copilot AI Evaluation</p>
+                  <p className="text-[11px] text-slate-400">ThreatLens AI Evaluation</p>
                 </div>
               </div>
             </div>

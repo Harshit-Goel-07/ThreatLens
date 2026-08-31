@@ -1,5 +1,5 @@
 """
-Embedding generation for Security Copilot
+Embedding generation for ThreatLens
 Supports both local sentence-transformers and OpenAI embeddings
 """
 

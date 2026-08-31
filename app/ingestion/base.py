@@ -1,5 +1,5 @@
 """
-Base ingestion interface for Security Copilot data sources
+Base ingestion interface for ThreatLens data sources
 """
 
 import logging

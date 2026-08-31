@@ -1,5 +1,5 @@
 """
-Query endpoints for Security Copilot RAG system.
+Query endpoints for ThreatLens RAG system.
 
 All endpoints require authentication (API key or JWT). Errors are sanitised by
 the global exception handlers; query history is persisted best-effort.

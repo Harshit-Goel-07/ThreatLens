@@ -1,5 +1,5 @@
 """
-Security Copilot - FastAPI Application Entry Point
+ThreatLens - FastAPI Application Entry Point
 """
 
 import logging
@@ -27,13 +27,13 @@ from app.retrieval.vector_store import init_qdrant
 configure_logging()
 logger = logging.getLogger(__name__)
 
-__version__ = "1.0.0"
+from app import __version__
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
-    logger.info("Starting Security Copilot (env=%s)...", settings.environment)
+    logger.info("Starting ThreatLens (env=%s)...", settings.environment)
     try:
         await init_postgres()
         await init_qdrant()
@@ -41,13 +41,13 @@ async def lifespan(app: FastAPI):
         logger.info("Initialization complete")
         yield
     finally:
-        logger.info("Shutting down Security Copilot...")
+        logger.info("Shutting down ThreatLens...")
         await close_postgres()
         await close_redis()
 
 
 app = FastAPI(
-    title="Security Copilot",
+    title="ThreatLens",
     description="Production-grade RAG-based Security Analysis System for SOC Analysts",
     version=__version__,
     lifespan=lifespan,
@@ -97,7 +97,7 @@ app.include_router(health.router, prefix="/api/v1", tags=["health"])
 @app.get("/", include_in_schema=False)
 async def root():
     return {
-        "message": "Security Copilot API",
+        "message": "ThreatLens API",
         "version": __version__,
         "docs": "/docs" if settings.expose_docs else "disabled",
     }

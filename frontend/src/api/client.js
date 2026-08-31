@@ -1,5 +1,5 @@
 /**
- * Security Copilot API Client
+ * ThreatLens API Client
  */
 
 export const getAuthHeaders = () => {

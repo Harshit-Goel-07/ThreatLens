@@ -1,9 +1,9 @@
 {
-  "name": "security-copilot-frontend",
+  "name": "threatlens-frontend",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Minimal chat UI for the Security Copilot RAG API",
+  "description": "SOC Analyst Dashboard for the ThreatLens RAG API",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

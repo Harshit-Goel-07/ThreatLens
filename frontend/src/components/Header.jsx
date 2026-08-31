@@ -38,7 +38,7 @@ export default function Header({ user, authType, onLogin, onApiKeySave, onLogout
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-400">
-                Security Copilot
+                ThreatLens
               </h1>
               <span className="px-2 py-0.5 text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full flex items-center space-x-1">
                 <Sparkles className="w-3 h-3 inline mr-1" /> SOC AI v1.0
@@ -95,7 +95,7 @@ export default function Header({ user, authType, onLogin, onApiKeySave, onLogout
               </div>
             </div>
 
-            <h2 className="text-xl font-bold text-white text-center mb-1">Access Security Copilot</h2>
+            <h2 className="text-xl font-bold text-white text-center mb-1">Access ThreatLens</h2>
             <p className="text-xs text-slate-400 text-center mb-6">Authenticate via Service API Key or User Account</p>
 
             <div className="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl mb-5 text-xs">

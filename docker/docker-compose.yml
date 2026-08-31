@@ -1,4 +1,4 @@
-# Security Copilot - full stack. Configure secrets in a .env file next to this
+# ThreatLens - full stack. Configure secrets in a .env file next to this
 # compose file (see ../.env.example). Never commit real secrets.
 #
 #   cd docker && cp ../.env.example .env && docker compose up -d --build
@@ -7,7 +7,7 @@ services:
   # Qdrant Vector Database
   qdrant:
     image: qdrant/qdrant:v1.12.1
-    container_name: seccopilot-qdrant
+    container_name: threatlens-qdrant
     ports:
       - "6333:6333"
       - "6334:6334"
@@ -23,12 +23,12 @@ services:
       retries: 10
     restart: unless-stopped
     networks:
-      - seccopilot-network
+      - threatlens-network
 
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    container_name: seccopilot-postgres
+    container_name: threatlens-postgres
     ports:
       - "5432:5432"
     volumes:
@@ -45,12 +45,12 @@ services:
       retries: 10
     restart: unless-stopped
     networks:
-      - seccopilot-network
+      - threatlens-network
 
   # Redis (caching + rate-limit backend)
   redis:
     image: redis:7-alpine
-    container_name: seccopilot-redis
+    container_name: threatlens-redis
     command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
     volumes:
       - redis_data:/data
@@ -61,18 +61,18 @@ services:
       retries: 10
     restart: unless-stopped
     networks:
-      - seccopilot-network
+      - threatlens-network
 
-  # Security Copilot Backend
+  # ThreatLens Backend
   backend:
     build:
       context: ..
       dockerfile: docker/Dockerfile.backend
-    container_name: seccopilot-backend
+    container_name: threatlens-backend
     env_file:
       - .env
     ports:
-      - "8000:8000"
+      - "8008:8008"
     volumes:
       - ../data:/app/data
       - hf_cache:/home/appuser/.cache
@@ -92,21 +92,21 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - seccopilot-network
+      - threatlens-network
 
   # Frontend (nginx serving the built SPA + proxying /api to the backend)
   frontend:
     build:
       context: ..
       dockerfile: docker/Dockerfile.frontend
-    container_name: seccopilot-frontend
+    container_name: threatlens-frontend
     ports:
       - "3000:80"
     depends_on:
       - backend
     restart: unless-stopped
     networks:
-      - seccopilot-network
+      - threatlens-network
 
 volumes:
   qdrant_data:
@@ -115,5 +115,5 @@ volumes:
   hf_cache:
 
 networks:
-  seccopilot-network:
+  threatlens-network:
     driver: bridge

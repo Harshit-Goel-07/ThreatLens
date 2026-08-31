@@ -1,3 +1,3 @@
-"""API routes for Security Copilot"""
+"""API routes for ThreatLens"""
 
 __all__ = ["query", "ingest", "health"]

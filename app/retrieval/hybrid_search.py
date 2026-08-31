@@ -1,5 +1,5 @@
 """
-Hybrid search implementation for Security Copilot
+Hybrid search implementation for ThreatLens
 Combines semantic (vector) and keyword (BM25) search
 """
 

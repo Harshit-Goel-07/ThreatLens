@@ -1,5 +1,5 @@
 """
-Ingestion endpoints for Security Copilot data sources.
+Ingestion endpoints for ThreatLens data sources.
 
 Ingestion mutates the knowledge base, so every endpoint requires *admin*
 privileges. Jobs run in the background and their status is tracked in the

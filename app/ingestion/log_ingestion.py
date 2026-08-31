@@ -1,5 +1,5 @@
 """
-Security log ingestion for Security Copilot
+Security log ingestion for ThreatLens
 Processes various security log formats (Sysmon, Windows Event, Linux auditd)
 """
 

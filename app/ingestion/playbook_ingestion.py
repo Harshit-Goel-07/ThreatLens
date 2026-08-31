@@ -1,5 +1,5 @@
 """
-SOC Playbook ingestion for Security Copilot
+SOC Playbook ingestion for ThreatLens
 Processes incident response playbooks in markdown and JSON formats
 """
 

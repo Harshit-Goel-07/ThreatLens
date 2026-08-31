@@ -1,5 +1,5 @@
 """
-MITRE ATT&CK ingestion for Security Copilot
+MITRE ATT&CK ingestion for ThreatLens
 Downloads and processes MITRE ATT&CK STIX 2.1 data
 """
 

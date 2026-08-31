@@ -1,5 +1,5 @@
 """
-Security Copilot - RAG-based Security Analysis System
+ThreatLens - RAG-based Security Analysis System for SOC Analysts
 """
 
-__version__ = "0.1.0"
+__version__ = "1.0.0"

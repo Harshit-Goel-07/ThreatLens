@@ -1,5 +1,5 @@
 """
-OpenAI LLM provider implementation for Security Copilot
+OpenAI LLM provider implementation for ThreatLens
 """
 
 import logging
@@ -68,7 +68,7 @@ class OpenAIProvider(LLMProvider):
             logger.warning(f"OpenAI generation failed ({e}); returning fallback security analysis.")
             user_query = messages[-1].content if messages else "Security Query"
             fallback_text = (
-                f"### Security Copilot AI Triage & Analysis\n\n"
+                f"### ThreatLens AI Triage & Analysis\n\n"
                 f"**Query Evaluation**: Analysis of standard security indicators related to your request.\n\n"
                 f"**Key Findings & Recommendations**:\n"
                 f"1. **Threat Mitigation**: Validate access controls, inspect network logs for anomalies, and isolate any suspicious process execution.\n"
@@ -112,7 +112,7 @@ class OpenAIProvider(LLMProvider):
         except Exception as e:
             logger.warning(f"OpenAI streaming failed ({e}); yielding fallback response.")
             fallback_text = (
-                f"### Security Copilot AI Triage & Analysis\n\n"
+                f"### ThreatLens AI Triage & Analysis\n\n"
                 f"**Query Evaluation**: Analysis of standard security indicators related to your request.\n\n"
                 f"**Key Findings & Recommendations**:\n"
                 f"1. **Threat Mitigation**: Validate access controls, inspect network logs for anomalies, and isolate any suspicious process execution.\n"

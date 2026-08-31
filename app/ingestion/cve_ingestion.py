@@ -1,5 +1,5 @@
 """
-CVE/NVD ingestion for Security Copilot
+CVE/NVD ingestion for ThreatLens
 Fetches and processes CVE data from National Vulnerability Database
 """
 

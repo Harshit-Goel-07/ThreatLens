@@ -28,7 +28,7 @@ export default function SystemHealth({ onStatusUpdate }) {
               <span>System Operations & Infrastructure Health</span>
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Live status monitoring of Security Copilot microservices, database connections, and model pipelines.
+              Live status monitoring of ThreatLens microservices, database connections, and model pipelines.
             </p>
           </div>
 

@@ -144,7 +144,7 @@ export default function CopilotChat() {
               <Sparkles className="w-8 h-8 text-blue-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white mb-2">Security Copilot AI Assistant</h2>
+              <h2 className="text-xl font-bold text-white mb-2">ThreatLens AI Assistant</h2>
               <p className="text-xs text-slate-400 max-w-md mx-auto">
                 Ask any questions regarding MITRE ATT&CK techniques, CVE vulnerabilities, security logs analysis, or incident playbooks.
               </p>
@@ -185,7 +185,7 @@ export default function CopilotChat() {
                 }`}
               >
                 <div className="flex items-center justify-between border-b border-slate-800/60 pb-2 text-[10px] text-slate-400">
-                  <span className="font-bold text-slate-300">{msg.role === 'user' ? 'SOC Analyst' : 'Security Copilot'}</span>
+                  <span className="font-bold text-slate-300">{msg.role === 'user' ? 'SOC Analyst' : 'ThreatLens'}</span>
                   <span>{msg.timestamp}</span>
                 </div>
 

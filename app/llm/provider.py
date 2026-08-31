@@ -1,5 +1,5 @@
 """
-LLM provider abstraction for Security Copilot
+LLM provider abstraction for ThreatLens
 """
 
 from abc import ABC, abstractmethod

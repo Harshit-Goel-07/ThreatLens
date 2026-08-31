@@ -1,5 +1,5 @@
 """
-Semantic chunking for Security Copilot
+Semantic chunking for ThreatLens
 Context-aware chunking that preserves document structure
 """
 

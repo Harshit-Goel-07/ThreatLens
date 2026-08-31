@@ -1,57 +1,44 @@
 """
-PostgreSQL connection and initialization for Security Copilot
+Database connection and initialization for ThreatLens.
 """
 
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
-from sqlalchemy import create_engine, text
+
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import sessionmaker
 
 from app.config import settings
 from app.database.models import Base
 
 logger = logging.getLogger(__name__)
 
-# Async engine for FastAPI (supports asyncpg for Postgres and aiosqlite for SQLite).
-db_url = settings.postgres_url_full
-if "sqlite" in db_url:
-    async_url = db_url if "sqlite+aiosqlite" in db_url else db_url.replace("sqlite://", "sqlite+aiosqlite://")
-else:
-    async_url = db_url.replace("postgresql://", "postgresql+asyncpg://")
 
-async_engine = create_async_engine(
-    async_url,
-    echo=settings.debug,
-    future=True,
-    pool_pre_ping=True,
-)
+def _build_async_url(url: str) -> str:
+    """Convert a database URL to its async driver variant."""
+    if "sqlite" in url:
+        return url if "aiosqlite" in url else url.replace("sqlite://", "sqlite+aiosqlite://")
+    return url.replace("postgresql://", "postgresql+asyncpg://")
 
-def get_async_engine():
-    """Return current active async engine."""
-    return async_engine
 
-# Async session factory
+_engine_kwargs = dict(echo=settings.debug, future=True)
+# pool_pre_ping is unsupported for SQLite's NullPool
+if "sqlite" not in settings.postgres_url_full:
+    _engine_kwargs["pool_pre_ping"] = True
+
+async_engine = create_async_engine(_build_async_url(settings.postgres_url_full), **_engine_kwargs)
+
 AsyncSessionLocal = async_sessionmaker(
     bind=async_engine,
     class_=AsyncSession,
     expire_on_commit=False,
 )
 
-# Sync engine for migrations and admin tasks
-sync_engine = create_engine(
-    settings.postgres_url_full,
-    echo=settings.debug,
-    pool_pre_ping=True,
-)
 
-# Sync session factory
-SessionLocal = sessionmaker(
-    bind=sync_engine,
-    autocommit=False,
-    autoflush=False,
-)
+def get_async_engine():
+    """Return current active async engine."""
+    return async_engine
 
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
@@ -59,20 +46,14 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
         try:
             yield session
-        except Exception as e:
-            logger.error(f"Database session error: {e}")
+        except Exception:
             await session.rollback()
             raise
-        finally:
-            await session.close()
 
 
 @asynccontextmanager
 async def session_scope() -> AsyncGenerator[AsyncSession, None]:
-    """Context manager for async sessions outside of request handlers.
-
-    Commits on success, rolls back on error.
-    """
+    """Context manager for async sessions outside of request handlers."""
     async with AsyncSessionLocal() as session:
         try:
             yield session
@@ -82,51 +63,38 @@ async def session_scope() -> AsyncGenerator[AsyncSession, None]:
             raise
 
 
-def get_sync_session():
-    """Get sync database session"""
-    session = SessionLocal()
-    try:
-        yield session
-    except Exception as e:
-        logger.error(f"Database session error: {e}")
-        session.rollback()
-        raise
-    finally:
-        session.close()
-
-
 async def init_postgres() -> None:
-    """Initialize database with automatic SQLite fallback if PostgreSQL is unreachable."""
+    """Initialize database — creates tables. Falls back to SQLite if PostgreSQL fails."""
     global async_engine, AsyncSessionLocal
     try:
-        logger.info("Initializing PostgreSQL database...")
+        logger.info("Initializing database...")
         async with async_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        logger.info("PostgreSQL database initialized successfully")
+        db_type = "SQLite" if "sqlite" in str(async_engine.url) else "PostgreSQL"
+        logger.info("%s database initialized successfully", db_type)
     except Exception as e:
-        logger.warning(f"PostgreSQL connection failed ({e}). Falling back to local SQLite database.")
-        async_engine = create_async_engine("sqlite+aiosqlite:///./seccopilot.db", echo=settings.debug, future=True)
+        logger.warning("Database init failed (%s). Falling back to local SQLite.", e)
+        async_engine = create_async_engine("sqlite+aiosqlite:///./threatlens.db", echo=settings.debug, future=True)
         AsyncSessionLocal.configure(bind=async_engine)
         async with async_engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        logger.info("SQLite database fallback initialized successfully")
+        logger.info("SQLite fallback database initialized successfully")
 
 
 async def close_postgres() -> None:
-    """Close PostgreSQL connections"""
+    """Dispose database engine connections."""
     try:
         await async_engine.dispose()
-        logger.info("PostgreSQL connections closed")
+        logger.info("Database connections closed")
     except Exception as e:
-        logger.error(f"Error closing PostgreSQL: {e}")
+        logger.error("Error closing database: %s", e)
 
 
 async def check_postgres_health() -> bool:
-    """Check PostgreSQL health"""
+    """Check database health."""
     try:
         async with AsyncSessionLocal() as session:
             await session.execute(text("SELECT 1"))
         return True
-    except Exception as e:
-        logger.error(f"PostgreSQL health check failed: {e}")
+    except Exception:
         return False

@@ -1,5 +1,5 @@
 """
-Reranking module for Security Copilot
+Reranking module for ThreatLens
 Uses cross-encoder models to refine search results
 """
 

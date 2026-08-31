@@ -1,5 +1,5 @@
 """
-Context builder for Security Copilot
+Context builder for ThreatLens
 Assembles retrieved documents into structured context with citations
 """
 

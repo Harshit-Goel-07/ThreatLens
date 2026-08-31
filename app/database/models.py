@@ -1,5 +1,5 @@
 """
-SQLAlchemy models for Security Copilot metadata storage
+SQLAlchemy models for ThreatLens metadata storage
 """
 
 from sqlalchemy import Boolean, Column, DateTime, Float, Integer, JSON, String, Text

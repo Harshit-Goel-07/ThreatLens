@@ -1,5 +1,5 @@
 """
-Ollama LLM provider implementation for Security Copilot
+Ollama LLM provider implementation for ThreatLens
 """
 
 import logging

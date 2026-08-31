@@ -1,13 +1,15 @@
 """
-Health check endpoints for Security Copilot
+Health check endpoints for ThreatLens
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.postgres import get_async_session, check_postgres_health
+from app import __version__
 from app.retrieval.vector_store import check_qdrant_health
 
 logger = logging.getLogger(__name__)
@@ -20,9 +22,9 @@ async def health_check():
     """Basic health check endpoint"""
     return {
         "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
-        "service": "security-copilot",
-        "version": "0.1.0"
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "service": "threatlens",
+        "version": __version__,
     }
 
 
@@ -31,24 +33,24 @@ async def detailed_health_check(db: AsyncSession = Depends(get_async_session)):
     """Detailed health check with service status"""
     postgres_healthy = await check_postgres_health()
     qdrant_healthy = await check_qdrant_health()
-    
-    overall_status = "healthy" if postgres_healthy and qdrant_healthy else "unhealthy"
-    
+
+    overall_status = "healthy" if postgres_healthy and qdrant_healthy else "degraded"
+
     return {
         "status": overall_status,
-        "timestamp": datetime.utcnow().isoformat(),
-        "service": "security-copilot",
-        "version": "0.1.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "service": "threatlens",
+        "version": __version__,
         "services": {
-            "postgres": {
+            "database": {
                 "status": "healthy" if postgres_healthy else "unhealthy",
-                "description": "PostgreSQL metadata database"
+                "description": "Metadata database (PostgreSQL or SQLite)",
             },
             "qdrant": {
-                "status": "healthy" if qdrant_healthy else "unhealthy", 
-                "description": "Qdrant vector database"
-            }
-        }
+                "status": "healthy" if qdrant_healthy else "unhealthy",
+                "description": "Qdrant vector database",
+            },
+        },
     }
 
 
@@ -57,8 +59,5 @@ async def readiness_check(db: AsyncSession = Depends(get_async_session)):
     """Readiness check for Kubernetes/liveness probes"""
     postgres_healthy = await check_postgres_health()
     qdrant_healthy = await check_qdrant_health()
-    
-    if postgres_healthy and qdrant_healthy:
-        return {"status": "ready"}
-    else:
-        return {"status": "not_ready"}
+
+    return {"status": "ready" if postgres_healthy and qdrant_healthy else "not_ready"}

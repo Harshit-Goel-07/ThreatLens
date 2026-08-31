@@ -1,5 +1,5 @@
 """
-Qdrant vector store interface for Security Copilot
+Qdrant vector store interface for ThreatLens
 """
 
 import logging
@@ -30,7 +30,7 @@ COLLECTIONS = {
 }
 
 class VectorStore:
-    """Qdrant vector store wrapper for Security Copilot.
+    """Qdrant vector store wrapper for ThreatLens.
 
     The underlying client is created lazily on first use so that importing this
     module (e.g. during tests or by tooling) never opens a network connection.

@@ -54,7 +54,7 @@ def make_cache_key(prefix: str, payload: dict[str, Any]) -> str:
     """Build a deterministic cache key from a JSON-serialisable payload."""
     blob = json.dumps(payload, sort_keys=True, default=str)
     digest = hashlib.sha256(blob.encode("utf-8")).hexdigest()
-    return f"seccopilot:{prefix}:{digest}"
+    return f"threatlens:{prefix}:{digest}"
 
 
 async def cache_get(key: str) -> Optional[Any]:

@@ -1,5 +1,5 @@
 """
-Configuration management for Security Copilot.
+Configuration management for ThreatLens.
 
 Settings are loaded from environment variables (and an optional ``.env`` file)
 using ``pydantic-settings`` v2. Secrets never have insecure defaults: in a
@@ -162,7 +162,7 @@ class Settings(BaseSettings):
 
     @property
     def postgres_url_full(self) -> str:
-        if self.postgres_url and "@" in self.postgres_url:
+        if self.postgres_url:
             return self.postgres_url
         return (
             f"postgresql://{self.postgres_user}:{self.postgres_password}"

@@ -1,5 +1,5 @@
 """
-Guardrails for Security Copilot
+Guardrails for ThreatLens
 Prompt injection detection and output validation
 """
 

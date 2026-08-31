@@ -1,5 +1,5 @@
 """
-Complete RAG pipeline for Security Copilot
+Complete RAG pipeline for ThreatLens
 Orchestrates retrieval, reranking, context building, and LLM generation
 """
 
@@ -83,7 +83,7 @@ class RAGPipeline:
 
         if not search_results:
             fallback_prompt = (
-                f"You are Security Copilot, an expert AI Assistant for SOC Analysts.\n"
+                f"You are ThreatLens, an expert AI Assistant for SOC Analysts.\n"
                 f"Answer the following security question thoroughly using your expert "
                 f"cybersecurity domain knowledge, MITRE ATT&CK concepts, and incident response best practices:\n\n"
                 f"Question: {sanitized_query}"
@@ -232,12 +232,7 @@ class RAGPipeline:
                 yield {'type': 'error', 'error': 'Input validation failed',
                        'issues': prepared['response'].get('issues', [])}
                 return
-            if prepared['status'] == 'empty':
-                yield {'type': 'metadata', 'sources': [], 'num_sources': 0}
-                yield {'type': 'content', 'content': prepared['response']['answer']}
-                yield {'type': 'complete', 'confidence_score': 0.0,
-                       'response_time_ms': int((time.time() - start_time) * 1000)}
-                return
+
 
             context = prepared['context']
             messages = prepared['llm_messages']
