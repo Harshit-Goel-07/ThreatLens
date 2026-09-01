@@ -2,6 +2,7 @@
 Ollama LLM provider implementation for ThreatLens
 """
 
+import json
 import logging
 from typing import Dict, List, Optional, AsyncGenerator, Any
 import httpx
@@ -19,7 +20,7 @@ class OllamaProvider(LLMProvider):
         self.host = host or settings.ollama_host
         self._default_model = settings.ollama_model
         self._default_embedding_model = settings.ollama_model
-        self.client = httpx.AsyncClient(timeout=60.0)
+        self.client = httpx.AsyncClient(timeout=300.0)
     
     async def generate(
         self,
@@ -41,6 +42,7 @@ class OllamaProvider(LLMProvider):
             payload = {
                 "model": model or self._default_model,
                 "messages": ollama_messages,
+                "stream": False,
                 "options": {
                     "temperature": temperature,
                     "num_predict": max_tokens or 2048,
@@ -111,10 +113,10 @@ class OllamaProvider(LLMProvider):
                 async for line in response.aiter_lines():
                     if line.strip():
                         try:
-                            data = httpx._json.loads(line)
+                            data = json.loads(line)
                             if data.get("message", {}).get("content"):
                                 yield data["message"]["content"]
-                        except httpx._json.JSONDecodeError:
+                        except json.JSONDecodeError:
                             continue
                             
         except Exception as e:

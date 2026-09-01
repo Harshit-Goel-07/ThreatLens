@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Sparkles, Shield, ArrowRight, CheckCircle, RefreshCw } from 'lucide-react';
 import { apiFetch } from '../api/client';
+import FormattedResponse from './FormattedResponse';
 
 export default function AlertExplainer() {
   const [alertText, setAlertText] = useState('');
@@ -94,8 +95,8 @@ export default function AlertExplainer() {
               </div>
             </div>
 
-            <div className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {result.answer}
+            <div className="text-xs text-slate-300 leading-relaxed">
+              <FormattedResponse content={result.answer} />
             </div>
 
             {result.sources && result.sources.length > 0 && (

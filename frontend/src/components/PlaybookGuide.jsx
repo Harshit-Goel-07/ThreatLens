@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, CheckSquare, ShieldCheck, ArrowRight, RefreshCw } from 'lucide-react';
 import { apiFetch } from '../api/client';
+import FormattedResponse from './FormattedResponse';
 
 const PLAYBOOK_TOPICS = [
   { id: 'phishing', label: 'Phishing & Email Compromise', severity: 'HIGH' },
@@ -101,8 +102,8 @@ export default function PlaybookGuide() {
               </div>
             </div>
 
-            <div className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {result.answer}
+            <div className="text-xs text-slate-300 leading-relaxed">
+              <FormattedResponse content={result.answer} />
             </div>
           </div>
         ) : (

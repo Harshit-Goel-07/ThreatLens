@@ -80,22 +80,29 @@ export const queryCopilotStream = async (queryPayload, onChunk, onError, onCompl
     });
 
     if (!response.ok) {
-      throw new Error(`Query failed with status ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || errorData.message || `Query failed with status ${response.status}`);
     }
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    let buffer = '';
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n').filter(line => line.trim());
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      // The last element is either empty (if ended with \n) or incomplete line
+      buffer = lines.pop() || '';
 
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const rawData = line.slice(6);
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        if (trimmed.startsWith('data: ')) {
+          const rawData = trimmed.slice(6).trim();
           if (rawData === '[DONE]') {
             if (onComplete) onComplete();
             return;
@@ -104,7 +111,7 @@ export const queryCopilotStream = async (queryPayload, onChunk, onError, onCompl
             const parsed = JSON.parse(rawData);
             onChunk(parsed);
           } catch (e) {
-            // Ignore parse errors for split frames
+            console.warn('Failed to parse SSE payload:', rawData, e);
           }
         }
       }

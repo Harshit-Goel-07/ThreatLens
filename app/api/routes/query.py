@@ -139,10 +139,12 @@ async def rag_query_stream(
                 filters=request.filters,
             ):
                 yield f"data: {json.dumps(chunk)}\n\n"
+            yield "data: [DONE]\n\n"
         except Exception:  # noqa: BLE001
             logger.exception("SSE stream failed")
             err = {"type": "error", "error": "Internal server error", "error_id": uuid.uuid4().hex}
             yield f"data: {json.dumps(err)}\n\n"
+            yield "data: [DONE]\n\n"
 
     return StreamingResponse(
         generate(),

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, ShieldAlert, CheckCircle, ExternalLink, RefreshCw } from 'lucide-react';
 import { apiFetch } from '../api/client';
+import FormattedResponse from './FormattedResponse';
 
 export default function CveLookup() {
   const [cveQuery, setCveQuery] = useState('');
@@ -77,8 +78,8 @@ export default function CveLookup() {
               </span>
             </div>
 
-            <div className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
-              {result.answer}
+            <div className="text-xs text-slate-300 leading-relaxed">
+              <FormattedResponse content={result.answer} />
             </div>
 
             {result.sources && result.sources.length > 0 && (

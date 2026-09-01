@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Sparkles, Database, FileText, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 import { queryCopilotStream, apiFetch } from '../api/client';
+import FormattedResponse from './FormattedResponse';
 
 const SAMPLE_PROMPTS = [
   "How to investigate and remediate Command & Scripting Interpreter (MITRE T1059)?",
@@ -59,13 +60,24 @@ export default function CopilotChat() {
         rerank_top_k: 3,
       },
       (chunk) => {
+        if (chunk.type === 'error' || chunk.error) {
+          setMessages((prev) => {
+            const updated = [...prev];
+            const lastIdx = updated.length - 1;
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              content: updated[lastIdx].content || `⚠️ Error: ${chunk.error || 'Failed to generate response'}`,
+            };
+            return updated;
+          });
+        }
         if (chunk.content) {
           setMessages((prev) => {
             const updated = [...prev];
             const lastIdx = updated.length - 1;
             updated[lastIdx] = {
               ...updated[lastIdx],
-              content: updated[lastIdx].content + chunk.content,
+              content: (updated[lastIdx].content || '') + chunk.content,
             };
             return updated;
           });
@@ -89,7 +101,7 @@ export default function CopilotChat() {
           const lastIdx = updated.length - 1;
           updated[lastIdx] = {
             ...updated[lastIdx],
-            content: updated[lastIdx].content || `Query completed with fallback note. (${err.message})`,
+            content: updated[lastIdx].content || `⚠️ Query failed: ${err.message}`,
           };
           return updated;
         });
@@ -189,12 +201,20 @@ export default function CopilotChat() {
                   <span>{msg.timestamp}</span>
                 </div>
 
-                <div className="whitespace-pre-wrap leading-relaxed">
-                  {msg.content || (
-                    <div className="flex items-center space-x-2 text-slate-400">
+                <div>
+                  {msg.content ? (
+                    msg.role === 'assistant' ? (
+                      <FormattedResponse content={msg.content} />
+                    ) : (
+                      <div className="whitespace-pre-wrap leading-relaxed">{msg.content}</div>
+                    )
+                  ) : isLoading && index === messages.length - 1 ? (
+                    <div className="flex items-center space-x-2 text-slate-400 py-1">
                       <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-400" />
                       <span>Synthesizing response from RAG context...</span>
                     </div>
+                  ) : (
+                    <span className="text-slate-500 italic">No response received.</span>
                   )}
                 </div>
 
